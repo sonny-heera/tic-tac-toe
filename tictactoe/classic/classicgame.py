@@ -19,26 +19,29 @@ class ClassicGame(Game):
     """
     Classic tic-tac toe game with 2 players and a 3x3 grid.
     """
-    TOTAL_CELLS = ClassicBoard.DIMENSION * ClassicBoard.DIMENSION
-    WIN_COORDS = [[Point(0, 0), Point(0, 1), Point(0, 2)], [Point(1, 0), Point(1, 1), Point(1, 2)],
-                  [Point(2, 0), Point(2, 1), Point(2, 2)],
-                  [Point(0, 0), Point(1, 0), Point(2, 0)], [Point(0, 1), Point(1, 1), Point(2, 1)],
-                  [Point(0, 2), Point(1, 2), Point(2, 2)],
-                  [Point(0, 0), Point(1, 1), Point(2, 2)], [Point(0, 2), Point(1, 1), Point(2, 0)]]
+    MAX_TURNS = ClassicBoard.DIMENSION * ClassicBoard.DIMENSION
+    VICTORY_COORDINATES = [[Point(0, 0), Point(0, 1), Point(0, 2)],  # horizontal
+                           [Point(1, 0), Point(1, 1), Point(1, 2)],
+                           [Point(2, 0), Point(2, 1), Point(2, 2)],
+                           [Point(0, 0), Point(1, 0), Point(2, 0)],  # vertical
+                           [Point(0, 1), Point(1, 1), Point(2, 1)],
+                           [Point(0, 2), Point(1, 2), Point(2, 2)],
+                           [Point(0, 0), Point(1, 1), Point(2, 2)],  # diagonal
+                           [Point(0, 2), Point(1, 1), Point(2, 0)]]
 
     def __init__(self, board: ClassicBoard, players: List[Player]):
         if len(players) > 2:
             raise ValueError("number of players should be 2")
         super().__init__(board, players)
-        self.num_cells_used = 0
 
     def play(self):
         print("Starting new game")
         curr_player = self.players[0]
-        while True:
+        turn = 0
+        while turn < ClassicGame.MAX_TURNS:
             print(str(self.board) + "\n")
             self.execute_turn(curr_player)
-            self.num_cells_used += 1
+            turn += 1
 
             if self.is_game_over(curr_player):
                 print(str(self.board))
@@ -49,26 +52,25 @@ class ClassicGame(Game):
                 else:
                     curr_player = self.players[0]
 
+        if turn == ClassicGame.MAX_TURNS:
+            print(str(self.board) + "\n")
+            print("game has ended in a tie")
+
     def execute_turn(self, player: Player):
         try:
             print(f'It is {player.name}\'s turn')
             row = int(input("Enter row: "))
             col = int(input("Enter column: "))
-
             self.board.set([row, col], player.symbol)
         except ValueError as e:
             print("Erroneous value provided: " + str(e))
             self.execute_turn(player)
 
     def is_game_over(self, player: Player) -> bool:
-        if self.num_cells_used == ClassicGame.TOTAL_CELLS:
-            print("game has ended in a tie")
-            return True
-        else:
-            for coords in self.WIN_COORDS:
-                if self.is_sequence_filled(player.symbol, coords):
-                    print(f'Player {player.name} has won')
-                    return True
+        for coordinates in self.VICTORY_COORDINATES:
+            if self.is_sequence_filled(player.symbol, coordinates):
+                print(f'Player {player.name} has won')
+                return True
 
         return False
 
@@ -78,15 +80,3 @@ class ClassicGame(Game):
                 return False
 
         return True
-
-
-if __name__ == '__main__':
-    player_1_name = str(input("Enter player 1 name: "))
-    player_1 = Player(player_1_name, ClassicSymbol.O.value)
-
-    player_2_name = str(input("Enter player 2 name: "))
-    player_2 = Player(player_2_name, ClassicSymbol.X.value)
-
-    game = ClassicGame(ClassicBoard(), [player_1, player_2])
-
-    game.play()

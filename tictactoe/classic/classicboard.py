@@ -19,7 +19,7 @@ class ClassicBoard(Board):
     DIMENSION = 3
 
     def __init__(self):
-        self.grid: List[str][str] = [[None for i in range(ClassicBoard.DIMENSION)] for j in
+        self.grid: List[List[str]] = [[None for i in range(ClassicBoard.DIMENSION)] for j in
                                      range(ClassicBoard.DIMENSION)]
 
     def get(self, position: List[int]) -> str:
@@ -59,7 +59,7 @@ class ClassicBoard(Board):
             for j in range(len(self.grid[i])):
                 symbol = self.grid[i][j]
                 if symbol is None:
-                    grid += "   "
+                    grid += " - "
                 else:
                     grid += f' {symbol} '
             grid += "\n"
